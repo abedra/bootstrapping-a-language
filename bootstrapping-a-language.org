@@ -1,0 +1,66 @@
+#+TITLE:     Bootstrapping a Language
+#+AUTHOR:    Aaron Bedra
+#+EMAIL:     aaron@aaronbedra.com
+#+LANGUAGE:  en
+
+* Once upon a time there was a REPL				      :slide:
+#+begin_src ruby
+  #!/usr/bin/env ruby
+
+  def repl
+    while true
+      "geeklisp> ".display
+      gets.each {|e| puts e}
+    end
+  end
+
+  repl
+#+end_src
+* But that REPL didn't do much					      :slide:
+#+begin_src sh
+  $ ./geeklisp
+#+end_src
+#+begin_src scheme
+  geeklisp> (define foo 2)
+  (define foo 2)
+  geeklisp> (define bar 5)
+  (define bar 5)
+  geeklisp> (+ foo bar)
+  (+ foo bar)
+  geeklisp>
+#+end_src
+* This is the true story... of several lines of code... picked to live in a REPL... to work together and have their lines executed... find out what happens when code stops being polite... and starts getting real... :slide:
+* Everyone should try to write a language			      :slide:
+* 								      :slide:
+file:lisplogo.png
+* Peter Norvig							      :slide:
+file:norvig.jpg
+* The basics 							      :slide:
+#+ATTR_HTML: border="2" rules="all" frame="border" align="center"
+| Form               | Syntax                  | Example                           |
+|--------------------+-------------------------+-----------------------------------|
+| variable reference | =var=                   | =x=                               |
+| constant literal   | =number=                | =12=                              |
+| quoation           | =(quote exp)=           | =(quote (1 2 3))=                 |
+| conditional        | =(if test conseq alt)=  | =(if (< 10 20) #t #f)=            |
+| assignment         | =(set! var exp)=        | =(set! x (* x x))=                |
+| definition         | =(define var exp)=      | =(define r 3)=                    |
+| procedure          | =(lambda (var...) exp)= | =(lambda (r) (* r r)))=           |
+| sequencing         | =(begin exp)=           | =(begin (set! x 1) (* x 2))=      |
+| procedure call     | =(proc exp)=            | =(square 12)=                     |
+
+#+TAGS: slide(s)
+
+#+STYLE: <link rel="stylesheet" type="text/css" href="common.css" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="screen.css" media="screen" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="projection.css" media="projection" />
+#+STYLE: <link rel="stylesheet" type="text/css" href="presenter.css" media="presenter" />
+
+#+BEGIN_HTML
+<script type="text/javascript" src="org-html-slideshow.js"></script>
+#+END_HTML
+
+# Local Variables:
+# org-export-html-style-include-default: nil
+# org-export-html-style-include-scripts: nil
+# End:

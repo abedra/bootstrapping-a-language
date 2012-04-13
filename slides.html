@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Bootstrapping a Language</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="title" content="Bootstrapping a Language"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-04-12 23:51:31 CDT"/>
+<meta name="author" content="Aaron Bedra"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+
+<link rel="stylesheet" type="text/css" href="common.css" />
+<link rel="stylesheet" type="text/css" href="screen.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="projection.css" media="projection" />
+<link rel="stylesheet" type="text/css" href="presenter.css" media="presenter" />
+
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Bootstrapping a Language</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Once upon a time there was a REPL</a></li>
+<li><a href="#sec-2">2 But that REPL didn't do much</a></li>
+<li><a href="#sec-3">3 This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip;</a></li>
+<li><a href="#sec-4">4 Everyone should try to write a language</a></li>
+<li><a href="#sec-5">5 :slide:</a></li>
+<li><a href="#sec-6">6 Peter Norvig</a></li>
+<li><a href="#sec-7">7 The basics</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Once upon a time there was a REPL &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-1">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #b22222;">#</span><span style="color: #b22222;">!/usr/bin/env ruby</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
+  <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
+    <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
+    gets.each {|e| puts e}
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+
+repl
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> But that REPL didn't do much &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-2">
+
+
+
+
+<pre class="src src-sh">$ ./geeklisp
+</pre>
+
+
+<pre class="src src-scheme">geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> 2)
+(<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> 2)
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">bar</span> 5)
+(<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">bar</span> 5)
+geeklisp&gt; (+ foo bar)
+(+ foo bar)
+geeklisp&gt;
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-3">
+
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Everyone should try to write a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-4">
+
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-5">
+
+<p><img src="lisplogo.png"  alt="lisplogo.png" />
+</p></div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Peter Norvig &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-6">
+
+<p><img src="norvig.jpg"  alt="norvig.jpg" />
+</p></div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> The basics &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-7">
+
+<table  border="2" cellspacing="0" cellpadding="6" rules="all" frame="border" align="center">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" /><col class="left" />
+</colgroup>
+<thead>
+<tr><th scope="col" class="left">Form</th><th scope="col" class="left">Syntax</th><th scope="col" class="left">Example</th></tr>
+</thead>
+<tbody>
+<tr><td class="left">variable reference</td><td class="left"><code>var</code></td><td class="left"><code>x</code></td></tr>
+<tr><td class="left">constant literal</td><td class="left"><code>number</code></td><td class="left"><code>12</code></td></tr>
+<tr><td class="left">quoation</td><td class="left"><code>(quote exp)</code></td><td class="left"><code>(quote (1 2 3))</code></td></tr>
+<tr><td class="left">conditional</td><td class="left"><code>(if test conseq alt)</code></td><td class="left"><code>(if (&lt; 10 20) #t #f)</code></td></tr>
+<tr><td class="left">assignment</td><td class="left"><code>(set! var exp)</code></td><td class="left"><code>(set! x (* x x))</code></td></tr>
+<tr><td class="left">definition</td><td class="left"><code>(define var exp)</code></td><td class="left"><code>(define r 3)</code></td></tr>
+<tr><td class="left">procedure</td><td class="left"><code>(lambda (var...) exp)</code></td><td class="left"><code>(lambda (r) (* r r)))</code></td></tr>
+<tr><td class="left">sequencing</td><td class="left"><code>(begin exp)</code></td><td class="left"><code>(begin (set! x 1) (* x 2))</code></td></tr>
+<tr><td class="left">procedure call</td><td class="left"><code>(proc exp)</code></td><td class="left"><code>(square 12)</code></td></tr>
+</tbody>
+</table>
+
+
+
+
+
+
+<script type="text/javascript" src="org-html-slideshow.js"></script>
+
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-04-12 23:51:31 CDT</p>
+<p class="author">Author: Aaron Bedra</p>
+<p class="creator">Org version 7.8.03 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>
