@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content="Bootstrapping a Language"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-04-12 23:51:31 CDT"/>
+<meta name="generated" content="2012-05-07 23:03:54 CDT"/>
 <meta name="author" content="Aaron Bedra"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -40,6 +40,14 @@
 <li><a href="#sec-5">5 :slide:</a></li>
 <li><a href="#sec-6">6 Peter Norvig</a></li>
 <li><a href="#sec-7">7 The basics</a></li>
+<li><a href="#sec-8">8 Let's start making our REPL into a real language</a></li>
+<li><a href="#sec-9">9 Turning the lisp source into tokens (Read)</a></li>
+<li><a href="#sec-10">10 What it looks like</a></li>
+<li><a href="#sec-11">11 Basic Evaluation</a></li>
+<li><a href="#sec-12">12 Did we take a step back?</a></li>
+<li><a href="#sec-13">13 We need a way to keep track of things so we can refer to them later</a></li>
+<li><a href="#sec-14">14 Update eval to accept an env and repl to initialize an env</a></li>
+<li><a href="#sec-15">15 Give it a try</a></li>
 </ul>
 </div>
 </div>
@@ -56,7 +64,7 @@
 <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
   <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
     <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
-    gets.each {|e| puts e}
+    puts gets
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
 
@@ -149,7 +157,198 @@ geeklisp&gt;
 </tbody>
 </table>
 
+</div>
 
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> Let's start making our REPL into a real language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-8">
+
+</div>
+
+</div>
+
+<div id="outline-container-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> Turning the lisp source into tokens (Read) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-9">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">to_atom</span>(src)
+  <span style="color: #7f007f;">return</span> <span style="color: #8b2252;">"["</span> <span style="color: #7f007f;">if</span> src ==<span style="color: #8b2252;">'('</span>
+  <span style="color: #7f007f;">return</span> <span style="color: #8b2252;">"]"</span> <span style="color: #7f007f;">if</span> src ==<span style="color: #8b2252;">')'</span>
+  <span style="color: #7f007f;">return</span> src <span style="color: #7f007f;">if</span> src =~ <span style="color: #8b2252;">/^-?\d+$/</span> || src =~ <span style="color: #8b2252;">/^-?\d*\.\d+$/</span>
+  <span style="color: #8b2252;">':'</span> + src
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">read</span>(src)
+  tokens = src.gsub(<span style="color: #8b2252;">'('</span>, <span style="color: #8b2252;">' ( '</span>).gsub(<span style="color: #8b2252;">')'</span>, <span style="color: #8b2252;">' ) '</span>).split
+  <span style="color: #228b22;">Kernel</span>.eval(tokens.map{|s| to_atom(s)}.join(<span style="color: #8b2252;">' '</span>).gsub(<span style="color: #8b2252;">' ]'</span>,<span style="color: #8b2252;">']'</span>).gsub(<span style="color: #8b2252;">/([^\[]) /</span>,<span style="color: #8b2252;">'\1, '</span>))
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
+  <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
+    <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
+    puts read(gets).inspect
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-10" class="outline-2">
+<h2 id="sec-10"><span class="section-number-2">10</span> What it looks like &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-10">
+
+
+
+
+<pre class="src src-scheme">$ ./geeklisp
+geeklisp&gt; (+ 2 3)
+[<span style="color: #483d8b;">:+</span>, 2, 3]
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
+[<span style="color: #483d8b;">:define</span>, <span style="color: #483d8b;">:sqr</span>, [<span style="color: #483d8b;">:x</span>], [<span style="color: #483d8b;">:*</span>, <span style="color: #483d8b;">:x</span>, <span style="color: #483d8b;">:x</span>]]
+geeklisp&gt; (sqr 2)
+[<span style="color: #483d8b;">:sqr</span>, 2]
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> Basic Evaluation &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-11">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x)
+  <span style="color: #7f007f;">return</span> x <span style="color: #7f007f;">if</span> !x.is_a? <span style="color: #228b22;">Array</span>
+  <span style="color: #7f007f;">case</span> x[0]
+    <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> x[1..-1]
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
+  <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
+    <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
+    puts (eval(read(gets))).inspect
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Did we take a step back? &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-12">
+
+
+
+
+<pre class="src src-scheme">$ ./geeklisp 
+geeklisp&gt; (+ 2 3)
+nil
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
+nil
+geeklisp&gt; (sqr 4)
+nil
+geeklisp&gt; (quote (1 2 3 4))
+[[1, 2, 3, 4]]
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-13" class="outline-2">
+<h2 id="sec-13"><span class="section-number-2">13</span> We need a way to keep track of things so we can refer to them later &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-13">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">class</span> <span style="color: #228b22;">Env</span> &lt; <span style="color: #228b22;">Hash</span>
+  <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">initialize</span>(keys=[], vals=[], outer=<span style="color: #a0522d;">nil</span>)
+    <span style="color: #a0522d;">@outer</span> = outer
+    keys.zip(vals).each{|p| store(*p)}
+  <span style="color: #7f007f;">end</span>
+
+  <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">[]</span> (name)
+    <span style="color: #7f007f;">super</span>(name) || <span style="color: #a0522d;">@outer</span>[name]
+  <span style="color: #7f007f;">end</span>
+
+  <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">set</span>(name, value)
+    key?(name) ? store(name, value) : <span style="color: #a0522d;">@outer</span>.set(name, value)
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-14" class="outline-2">
+<h2 id="sec-14"><span class="section-number-2">14</span> Update eval to accept an env and repl to initialize an env &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-14">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
+  <span style="color: #7f007f;">return</span> env[x] <span style="color: #7f007f;">if</span> x.is_a? <span style="color: #228b22;">Symbol</span>
+  <span style="color: #7f007f;">return</span> x <span style="color: #7f007f;">if</span> !x.is_a? <span style="color: #228b22;">Array</span>
+  <span style="color: #7f007f;">case</span> x[0]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> x[1..-1]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:define</span> <span style="color: #7f007f;">then</span> env[x[1]] = eval(x[2], env)
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:set!</span> <span style="color: #7f007f;">then</span> env.set(x[1], eval(x[2], env))
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:env</span> <span style="color: #7f007f;">then</span> env
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
+  env = <span style="color: #228b22;">Env</span>.new
+  <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
+    <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
+    puts (eval(read(gets))).inspect
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-15" class="outline-2">
+<h2 id="sec-15"><span class="section-number-2">15</span> Give it a try &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-15">
+
+
+
+
+<pre class="src src-scheme">./geeklisp 
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> 5)
+5
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
+nil
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">bar</span> 27)
+27
+geeklisp&gt; foo
+5
+geeklisp&gt; bar 
+27
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">baz</span> (quote (1 2 3)))
+[[1, 2, 3]]
+geeklisp&gt; (env)
+{<span style="color: #483d8b;">:foo=&gt;5</span>, <span style="color: #483d8b;">:sqr=&gt;nil</span>, <span style="color: #483d8b;">:bar=&gt;27</span>, <span style="color: #483d8b;">:baz=&gt;</span>[[1, 2, 3]]}
+</pre>
 
 
 
@@ -161,7 +360,7 @@ geeklisp&gt;
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-04-12 23:51:31 CDT</p>
+<p class="date">Date: 2012-05-07 23:03:54 CDT</p>
 <p class="author">Author: Aaron Bedra</p>
 <p class="creator">Org version 7.8.03 with Emacs version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+class Env < Hash
+  def initialize(keys=[], vals=[], outer=nil)
+    @outer = outer
+    keys.zip(vals).each{|p| store(*p)}
+  end
+
+  def [](name)
+    super(name) || @outer[name]
+  end
+
+  def set(name, value)
+    key?(name) ? store(name, value) : @outer.set(name, value)
+  end
+end
+
+def eval(x, env)
+  return env[x] if x.is_a? Symbol
+  return x if !x.is_a? Array
+  case x[0]
+  when :quote then x[1..-1]
+  when :define then env[x[1]] = eval(x[2], env)
+  when :set! then env.set(x[1], eval(x[2], env))
+  when :env then env
+  end
+end
+
+def to_atom(src)
+  return "[" if src =='('
+  return "]" if src ==')'
+  return src if src =~ /^-?\d+$/ || src =~ /^-?\d*\.\d+$/
+  ':' + src
+end
+
+def read(src)
+  tokens = src.gsub('(', ' ( ').gsub(')', ' ) ').split
+  Kernel.eval(tokens.map{|s| to_atom(s)}.join(' ').gsub(' ]',']').gsub(/([^\[]) /,'\1, '))
+end
+
+def repl
+  env = Env.new
+  while true
+    "geeklisp> ".display
+    p(eval(read(gets), env))
+  end
+end
+
+repl

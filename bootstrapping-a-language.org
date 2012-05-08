@@ -10,7 +10,7 @@
   def repl
     while true
       "geeklisp> ".display
-      gets.each {|e| puts e}
+      puts gets
     end
   end
 
@@ -48,6 +48,122 @@ file:norvig.jpg
 | procedure          | =(lambda (var...) exp)= | =(lambda (r) (* r r)))=           |
 | sequencing         | =(begin exp)=           | =(begin (set! x 1) (* x 2))=      |
 | procedure call     | =(proc exp)=            | =(square 12)=                     |
+* Let's start making our REPL into a real language		      :slide:
+* Turning the lisp source into tokens (Read)			      :slide:
+#+begin_src ruby
+  def to_atom(src)
+    return "[" if src =='('
+    return "]" if src ==')'
+    return src if src =~ /^-?\d+$/ || src =~ /^-?\d*\.\d+$/
+    ':' + src
+  end
+  
+  def read(src)
+    tokens = src.gsub('(', ' ( ').gsub(')', ' ) ').split
+    Kernel.eval(tokens.map{|s| to_atom(s)}.join(' ').gsub(' ]',']').gsub(/([^\[]) /,'\1, '))
+  end
+  
+  def repl
+    while true
+      "geeklisp> ".display
+      puts read(gets).inspect
+    end
+  end
+#+end_src
+* What it looks like						      :slide:
+#+begin_src scheme
+  $ ./geeklisp
+  geeklisp> (+ 2 3)
+  [:+, 2, 3]
+  geeklisp> (define sqr (x) (* x x))
+  [:define, :sqr, [:x], [:*, :x, :x]]
+  geeklisp> (sqr 2)
+  [:sqr, 2]
+#+end_src
+* Basic Evaluation						      :slide:
+#+begin_src ruby
+  def eval(x)
+    return x if !x.is_a? Array
+    case x[0]
+      when :quote then x[1..-1]
+    end
+  end
+  
+  def repl
+    while true
+      "geeklisp> ".display
+      puts (eval(read(gets))).inspect
+    end
+  end
+#+end_src
+* Did we take a step back? 					      :slide:
+#+begin_src scheme
+  $ ./geeklisp 
+  geeklisp> (+ 2 3)
+  nil
+  geeklisp> (define sqr (x) (* x x))
+  nil
+  geeklisp> (sqr 4)
+  nil
+  geeklisp> (quote (1 2 3 4))
+  [[1, 2, 3, 4]]
+#+end_src
+* We need a way to keep track of things so we can refer to them later :slide:
+#+begin_src ruby
+  class Env < Hash
+    def initialize(keys=[], vals=[], outer=nil)
+      @outer = outer
+      keys.zip(vals).each{|p| store(*p)}
+    end
+  
+    def [] (name)
+      super(name) || @outer[name]
+    end
+  
+    def set(name, value)
+      key?(name) ? store(name, value) : @outer.set(name, value)
+    end
+  end
+#+end_src
+* Update eval to accept an env and repl to initialize an env 	      :slide:
+#+begin_src ruby
+  def eval(x, env)
+    return env[x] if x.is_a? Symbol
+    return x if !x.is_a? Array
+    case x[0]
+    when :quote then x[1..-1]
+    when :define then env[x[1]] = eval(x[2], env)
+    when :set! then env.set(x[1], eval(x[2], env))
+    when :env then env
+    end
+  end
+  
+  def repl
+    env = Env.new
+    while true
+      "geeklisp> ".display
+      puts (eval(read(gets))).inspect
+    end
+  end
+#+end_src
+* Give it a try							      :slide:
+#+begin_src scheme
+  ./geeklisp 
+  geeklisp> (define foo 5)
+  5
+  geeklisp> (define sqr (x) (* x x))
+  nil
+  geeklisp> (define bar 27)
+  27
+  geeklisp> foo
+  5
+  geeklisp> bar 
+  27
+  geeklisp> (define baz (quote (1 2 3)))
+  [[1, 2, 3]]
+  geeklisp> (env)
+  {:foo=>5, :sqr=>nil, :bar=>27, :baz=>[[1, 2, 3]]}
+#+end_src
 
 #+TAGS: slide(s)
 
