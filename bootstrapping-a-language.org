@@ -41,7 +41,7 @@ file:norvig.jpg
 |--------------------+-------------------------+-----------------------------------|
 | variable reference | =var=                   | =x=                               |
 | constant literal   | =number=                | =12=                              |
-| quoation           | =(quote exp)=           | =(quote (1 2 3))=                 |
+| quotation          | =(quote exp)=           | =(quote (1 2 3))=                 |
 | conditional        | =(if test conseq alt)=  | =(if (< 10 20) #t #f)=            |
 | assignment         | =(set! var exp)=        | =(set! x (* x x))=                |
 | definition         | =(define var exp)=      | =(define r 3)=                    |
@@ -75,8 +75,10 @@ file:norvig.jpg
   $ ./geeklisp
   geeklisp> (+ 2 3)
   [:+, 2, 3]
-  geeklisp> (define sqr (x) (* x x))
-  [:define, :sqr, [:x], [:*, :x, :x]]
+  geeklisp> (define sqr (lambda (x) (* x x)))
+  [:define, :sqr, [:lambda, [:x], [:*, :x, :x]]]
+  geeklisp> sqr
+  :sqr
   geeklisp> (sqr 2)
   [:sqr, 2]
 #+end_src
@@ -295,6 +297,7 @@ file:norvig.jpg
   - No callcc/tail recursion
   - No save-world
 * References							      :slide:
+  - This presentation [[https://github.com/abedra/bootstrapping-a-language][github.com/abedra/bootstrapping-a-language]]
   - (How to Write a (Lisp) Interpreter (in Python)) [[http://norvig.com/lispy.html][norvig.com/lispy.html]]
   - SICP [[http://mitpress.mit.edu/sicp/][mitpress.mit.edu/sicp/]]
   - Scheme Specification [[http://www.schemers.org/Documents/Standards/R5RS/][www.schemers.org/Documents/Standards/R5RS/]]
