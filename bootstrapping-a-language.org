@@ -2,7 +2,7 @@
 #+AUTHOR:    Aaron Bedra
 #+EMAIL:     aaron@aaronbedra.com
 #+LANGUAGE:  en
-
+* Bootstrapping A Language					      :slide:title:
 * Once upon a time there was a REPL				      :slide:
 #+begin_src ruby
   #!/usr/bin/env ruby
@@ -10,7 +10,7 @@
   def repl
     while true
       "geeklisp> ".display
-      puts gets
+      p(gets)
     end
   end
 
@@ -48,7 +48,7 @@ file:norvig.jpg
 | procedure          | =(lambda (var...) exp)= | =(lambda (r) (* r r)))=           |
 | sequencing         | =(begin exp)=           | =(begin (set! x 1) (* x 2))=      |
 | procedure call     | =(proc exp)=            | =(square 12)=                     |
-* Let's start making our REPL into a real language		      :slide:
+* Let's start turning our REPL into a real language 		      :slide:
 * Turning the lisp source into tokens (Read)			      :slide:
 #+begin_src ruby
   def to_atom(src)
@@ -66,7 +66,7 @@ file:norvig.jpg
   def repl
     while true
       "geeklisp> ".display
-      puts read(gets).inspect
+      p(read(gets))
     end
   end
 #+end_src
@@ -92,7 +92,7 @@ file:norvig.jpg
   def repl
     while true
       "geeklisp> ".display
-      puts (eval(read(gets))).inspect
+      p(eval(read(gets)))
     end
   end
 #+end_src
@@ -101,7 +101,7 @@ file:norvig.jpg
   $ ./geeklisp
   geeklisp> (+ 2 3)
   nil
-  geeklisp> (define sqr (x) (* x x))
+  geeklisp> (define sqr (lambda (x) (* x x)))
   nil
   geeklisp> (sqr 4)
   nil
@@ -151,7 +151,7 @@ file:norvig.jpg
   ./geeklisp
   geeklisp> (define foo 5)
   5
-  geeklisp> (define sqr (x) (* x x))
+  geeklisp> (define sqr (lambda (x) (* x x)))
   nil
   geeklisp> (define bar 27)
   27
@@ -224,10 +224,17 @@ file:norvig.jpg
     [:+, :-, :*, :/, :>, :<, :>=, :<=, :==].each do |op|
       env[op] = lambda{|a, b| a.send(op, b)}
     end
-    env.update({ :length => lambda{|x| x.length}, :cons => lambda{|x, y| [x]+y},
-    :car => lambda{|x| x[0]}, :cdr => lambda{|x| x[1..-1]}, :append => lambda{|x,y| x+y},
-    :list => lambda{|*xs| xs}, :list? => lambda{|x| x.is_a? Array}, :null? => lambda{|x| x==nil},
-    :symbol? => lambda{|x| x.is_a? Symbol}, :not => lambda{|x| !x}, :display => lambda{|x| p x}})
+
+    env.update({:length => lambda{|x| x.length},
+                :cons => lambda{|x,y| [x] + y},
+                :car => lambda{|x| x[0]},
+                :cdr => lambda{|x| x[1..-1]},
+                :append => lambda{|x,y| x + y},
+                :list => lambda{|*xs| xs},
+                :list? => lambda{|x| x.is_a? Array},
+                :symbol? => lambda{|x| x.is_a? Symbol},
+                :not => lambda{|x| !x},
+                :display => lambda{|x| p x}})
   end
 #+end_src
 * Try it out							      :slide:
@@ -250,15 +257,9 @@ file:norvig.jpg
 * We're almost there! Let's round things out			      :slide:
 #+begin_src ruby
   def eval(x, env)
-    return env[x] if x.is_a? Symbol
-    return x if !x.is_a? Array
-    case x[0]
-    when :quote then x[1..-1]
-    when :define then env[x[1]] = eval(x[2], env)
-    when :set! then env.set(x[1], eval(x[2], env))
-    when :env then env
+    ...
     when :if
-        _, test, conseq, alt = x
+      _, test, conseq, alt = x
       eval(eval(test, env) ? conseq : alt, env)
     when :lambda
       _, vars, exp = x
@@ -285,6 +286,18 @@ file:norvig.jpg
   geeklisp> (begin (set! x 1) (set! x (+ x 1)) (* x 2))
   4
 #+end_src
+* We now have the basics of a language				      :slide:
+* But we are missing a lot					      :slide:
+  - No error handling
+  - Not a complete implementation of the scheme spec
+  - No ability to load a file and run it
+  - No core after the bootstrap (stdlib)
+  - No callcc/tail recursion
+  - No save-world
+* References							      :slide:
+  - (How to Write a (Lisp) Interpreter (in Python)) [[http://norvig.com/lispy.html][norvig.com/lispy.html]]
+  - SICP [[http://mitpress.mit.edu/sicp/][mitpress.mit.edu/sicp/]]
+  - Scheme Specification [[http://www.schemers.org/Documents/Standards/R5RS/][www.schemers.org/Documents/Standards/R5RS/]]
 
 #+TAGS: slide(s)
 

@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content="Bootstrapping a Language"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-05-08 00:01:14 CDT"/>
+<meta name="generated" content="2012-05-08 07:47:41 CDT"/>
 <meta name="author" content="Aaron Bedra"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -33,35 +33,47 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 Once upon a time there was a REPL</a></li>
-<li><a href="#sec-2">2 But that REPL didn't do much</a></li>
-<li><a href="#sec-3">3 This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip;</a></li>
-<li><a href="#sec-4">4 Everyone should try to write a language</a></li>
-<li><a href="#sec-5">5 :slide:</a></li>
-<li><a href="#sec-6">6 Peter Norvig</a></li>
-<li><a href="#sec-7">7 The basics</a></li>
-<li><a href="#sec-8">8 Let's start making our REPL into a real language</a></li>
-<li><a href="#sec-9">9 Turning the lisp source into tokens (Read)</a></li>
-<li><a href="#sec-10">10 What it looks like</a></li>
-<li><a href="#sec-11">11 Basic Evaluation</a></li>
-<li><a href="#sec-12">12 Did we take a step back?</a></li>
-<li><a href="#sec-13">13 We need a way to keep track of things so we can refer to them later</a></li>
-<li><a href="#sec-14">14 Update eval to accept an env and repl to initialize an env</a></li>
-<li><a href="#sec-15">15 Give it a try</a></li>
-<li><a href="#sec-16">16 But our language still doesn't really know how to do anything&hellip;</a></li>
-<li><a href="#sec-17">17 Define the basic primitives</a></li>
-<li><a href="#sec-18">18 Now we're cooking</a></li>
-<li><a href="#sec-19">19 Bootstrapping more basic functions</a></li>
-<li><a href="#sec-20">20 Try it out</a></li>
-<li><a href="#sec-21">21 We're almost there! Let's round things out</a></li>
-<li><a href="#sec-22">22 Take in your new awesomeness</a></li>
+<li><a href="#sec-1">1 Bootstrapping A Language</a></li>
+<li><a href="#sec-2">2 Once upon a time there was a REPL</a></li>
+<li><a href="#sec-3">3 But that REPL didn't do much</a></li>
+<li><a href="#sec-4">4 This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip;</a></li>
+<li><a href="#sec-5">5 Everyone should try to write a language</a></li>
+<li><a href="#sec-6">6 :slide:</a></li>
+<li><a href="#sec-7">7 Peter Norvig</a></li>
+<li><a href="#sec-8">8 The basics</a></li>
+<li><a href="#sec-9">9 Let's start turning our REPL into a real language</a></li>
+<li><a href="#sec-10">10 Turning the lisp source into tokens (Read)</a></li>
+<li><a href="#sec-11">11 What it looks like</a></li>
+<li><a href="#sec-12">12 Basic Evaluation</a></li>
+<li><a href="#sec-13">13 Did we take a step back?</a></li>
+<li><a href="#sec-14">14 We need a way to keep track of things so we can refer to them later</a></li>
+<li><a href="#sec-15">15 Update eval to accept an env and repl to initialize an env</a></li>
+<li><a href="#sec-16">16 Give it a try</a></li>
+<li><a href="#sec-17">17 But our language still doesn't really know how to do anything&hellip;</a></li>
+<li><a href="#sec-18">18 Define the basic primitives</a></li>
+<li><a href="#sec-19">19 Now we're cooking</a></li>
+<li><a href="#sec-20">20 Bootstrapping more basic functions</a></li>
+<li><a href="#sec-21">21 Try it out</a></li>
+<li><a href="#sec-22">22 We're almost there! Let's round things out</a></li>
+<li><a href="#sec-23">23 Take in your new awesomeness</a></li>
+<li><a href="#sec-24">24 We now have the basics of a language</a></li>
+<li><a href="#sec-25">25 But we are missing a lot</a></li>
+<li><a href="#sec-26">26 References</a></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> Once upon a time there was a REPL &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-1"><span class="section-number-2">1</span> Bootstrapping A Language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span>&nbsp;<span class="title">title</span></span></h2>
 <div class="outline-text-2" id="text-1">
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Once upon a time there was a REPL &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-2">
 
 
 
@@ -71,7 +83,7 @@
 <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
   <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
     <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
-    puts gets
+    p(gets)
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
 
@@ -82,9 +94,9 @@ repl
 
 </div>
 
-<div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> But that REPL didn't do much &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> But that REPL didn't do much &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-3">
 
 
 
@@ -106,16 +118,8 @@ geeklisp&gt;
 
 </div>
 
-<div id="outline-container-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-3">
-
-</div>
-
-</div>
-
 <div id="outline-container-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> Everyone should try to write a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-4"><span class="section-number-2">4</span> This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
 <div class="outline-text-2" id="text-4">
 
 </div>
@@ -123,26 +127,34 @@ geeklisp&gt;
 </div>
 
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Everyone should try to write a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
 <div class="outline-text-2" id="text-5">
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-6">
 
 <p><img src="lisplogo.png"  alt="lisplogo.png" />
 </p></div>
 
 </div>
 
-<div id="outline-container-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> Peter Norvig &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-6">
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Peter Norvig &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-7">
 
 <p><img src="norvig.jpg"  alt="norvig.jpg" />
 </p></div>
 
 </div>
 
-<div id="outline-container-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> The basics &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-7">
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> The basics &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-8">
 
 <table  border="2" cellspacing="0" cellpadding="6" rules="all" frame="border" align="center">
 <caption></caption>
@@ -168,17 +180,17 @@ geeklisp&gt;
 
 </div>
 
-<div id="outline-container-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> Let's start making our REPL into a real language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-8">
-
-</div>
-
-</div>
-
 <div id="outline-container-9" class="outline-2">
-<h2 id="sec-9"><span class="section-number-2">9</span> Turning the lisp source into tokens (Read) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-9"><span class="section-number-2">9</span> Let's start turning our REPL into a real language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
 <div class="outline-text-2" id="text-9">
+
+</div>
+
+</div>
+
+<div id="outline-container-10" class="outline-2">
+<h2 id="sec-10"><span class="section-number-2">10</span> Turning the lisp source into tokens (Read) &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-10">
 
 
 
@@ -198,7 +210,7 @@ geeklisp&gt;
 <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
   <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
     <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
-    puts read(gets).inspect
+    p(read(gets))
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
 </pre>
@@ -207,9 +219,9 @@ geeklisp&gt;
 
 </div>
 
-<div id="outline-container-10" class="outline-2">
-<h2 id="sec-10"><span class="section-number-2">10</span> What it looks like &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-10">
+<div id="outline-container-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> What it looks like &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-11">
 
 
 
@@ -227,9 +239,9 @@ geeklisp&gt; (sqr 2)
 
 </div>
 
-<div id="outline-container-11" class="outline-2">
-<h2 id="sec-11"><span class="section-number-2">11</span> Basic Evaluation &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-11">
+<div id="outline-container-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Basic Evaluation &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-12">
 
 
 
@@ -244,7 +256,7 @@ geeklisp&gt; (sqr 2)
 <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
   <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
     <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
-    puts (eval(read(gets))).inspect
+    p(eval(read(gets)))
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
 </pre>
@@ -253,9 +265,9 @@ geeklisp&gt; (sqr 2)
 
 </div>
 
-<div id="outline-container-12" class="outline-2">
-<h2 id="sec-12"><span class="section-number-2">12</span> Did we take a step back? &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-12">
+<div id="outline-container-13" class="outline-2">
+<h2 id="sec-13"><span class="section-number-2">13</span> Did we take a step back? &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-13">
 
 
 
@@ -263,7 +275,7 @@ geeklisp&gt; (sqr 2)
 <pre class="src src-scheme">$ ./geeklisp
 geeklisp&gt; (+ 2 3)
 nil
-geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (<span style="color: #7f007f;">lambda</span> (x) (* x x)))
 nil
 geeklisp&gt; (sqr 4)
 nil
@@ -275,9 +287,9 @@ geeklisp&gt; (quote (1 2 3 4))
 
 </div>
 
-<div id="outline-container-13" class="outline-2">
-<h2 id="sec-13"><span class="section-number-2">13</span> We need a way to keep track of things so we can refer to them later &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-13">
+<div id="outline-container-14" class="outline-2">
+<h2 id="sec-14"><span class="section-number-2">14</span> We need a way to keep track of things so we can refer to them later &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-14">
 
 
 
@@ -302,9 +314,9 @@ geeklisp&gt; (quote (1 2 3 4))
 
 </div>
 
-<div id="outline-container-14" class="outline-2">
-<h2 id="sec-14"><span class="section-number-2">14</span> Update eval to accept an env and repl to initialize an env &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-14">
+<div id="outline-container-15" class="outline-2">
+<h2 id="sec-15"><span class="section-number-2">15</span> Update eval to accept an env and repl to initialize an env &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-15">
 
 
 
@@ -333,9 +345,9 @@ geeklisp&gt; (quote (1 2 3 4))
 
 </div>
 
-<div id="outline-container-15" class="outline-2">
-<h2 id="sec-15"><span class="section-number-2">15</span> Give it a try &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-15">
+<div id="outline-container-16" class="outline-2">
+<h2 id="sec-16"><span class="section-number-2">16</span> Give it a try &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-16">
 
 
 
@@ -343,7 +355,7 @@ geeklisp&gt; (quote (1 2 3 4))
 <pre class="src src-scheme">./geeklisp
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> 5)
 5
-geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (<span style="color: #7f007f;">lambda</span> (x) (* x x)))
 nil
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">bar</span> 27)
 27
@@ -361,9 +373,9 @@ geeklisp&gt; (env)
 
 </div>
 
-<div id="outline-container-16" class="outline-2">
-<h2 id="sec-16"><span class="section-number-2">16</span> But our language still doesn't really know how to do anything&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-16">
+<div id="outline-container-17" class="outline-2">
+<h2 id="sec-17"><span class="section-number-2">17</span> But our language still doesn't really know how to do anything&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-17">
 
 
 
@@ -383,9 +395,9 @@ nil
 
 </div>
 
-<div id="outline-container-17" class="outline-2">
-<h2 id="sec-17"><span class="section-number-2">17</span> Define the basic primitives &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-17">
+<div id="outline-container-18" class="outline-2">
+<h2 id="sec-18"><span class="section-number-2">18</span> Define the basic primitives &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-18">
 
 
 
@@ -417,9 +429,9 @@ nil
 
 </div>
 
-<div id="outline-container-18" class="outline-2">
-<h2 id="sec-18"><span class="section-number-2">18</span> Now we're cooking &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-18">
+<div id="outline-container-19" class="outline-2">
+<h2 id="sec-19"><span class="section-number-2">19</span> Now we're cooking &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-19">
 
 
 
@@ -445,9 +457,9 @@ true
 
 </div>
 
-<div id="outline-container-19" class="outline-2">
-<h2 id="sec-19"><span class="section-number-2">19</span> Bootstrapping more basic functions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-19">
+<div id="outline-container-20" class="outline-2">
+<h2 id="sec-20"><span class="section-number-2">20</span> Bootstrapping more basic functions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-20">
 
 
 
@@ -456,10 +468,17 @@ true
   [<span style="color: #008b8b;">:+</span>, <span style="color: #008b8b;">:-</span>, <span style="color: #008b8b;">:*</span>, <span style="color: #008b8b;">:/</span>, <span style="color: #008b8b;">:&gt;</span>, <span style="color: #008b8b;">:&lt;</span>, <span style="color: #008b8b;">:&gt;=</span>, <span style="color: #008b8b;">:&lt;=</span>, <span style="color: #008b8b;">:==</span>].each <span style="color: #7f007f;">do</span> |op|
     env[op] = lambda{|a, b| a.send(op, b)}
   <span style="color: #7f007f;">end</span>
-  env.update({ <span style="color: #008b8b;">:length</span> =&gt; lambda{|x| x.length}, <span style="color: #008b8b;">:cons</span> =&gt; lambda{|x, y| [x]+y},
-  <span style="color: #008b8b;">:car</span> =&gt; lambda{|x| x[0]}, <span style="color: #008b8b;">:cdr</span> =&gt; lambda{|x| x[1..-1]}, <span style="color: #008b8b;">:append</span> =&gt; lambda{|x,y| x+y},
-  <span style="color: #008b8b;">:list</span> =&gt; lambda{|*xs| xs}, <span style="color: #008b8b;">:list?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Array</span>}, <span style="color: #008b8b;">:null?</span> =&gt; lambda{|x| x==<span style="color: #a0522d;">nil</span>},
-  <span style="color: #008b8b;">:symbol?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Symbol</span>}, <span style="color: #008b8b;">:not</span> =&gt; lambda{|x| !x}, <span style="color: #008b8b;">:display</span> =&gt; lambda{|x| p x}})
+
+  env.update({<span style="color: #008b8b;">:length</span> =&gt; lambda{|x| x.length},
+              <span style="color: #008b8b;">:cons</span> =&gt; lambda{|x,y| [x] + y},
+              <span style="color: #008b8b;">:car</span> =&gt; lambda{|x| x[0]},
+              <span style="color: #008b8b;">:cdr</span> =&gt; lambda{|x| x[1..-1]},
+              <span style="color: #008b8b;">:append</span> =&gt; lambda{|x,y| x + y},
+              <span style="color: #008b8b;">:list</span> =&gt; lambda{|*xs| xs},
+              <span style="color: #008b8b;">:list?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Array</span>},
+              <span style="color: #008b8b;">:symbol?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Symbol</span>},
+              <span style="color: #008b8b;">:not</span> =&gt; lambda{|x| !x},
+              <span style="color: #008b8b;">:display</span> =&gt; lambda{|x| p x}})
 <span style="color: #7f007f;">end</span>
 </pre>
 
@@ -467,9 +486,9 @@ true
 
 </div>
 
-<div id="outline-container-20" class="outline-2">
-<h2 id="sec-20"><span class="section-number-2">20</span> Try it out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-20">
+<div id="outline-container-21" class="outline-2">
+<h2 id="sec-21"><span class="section-number-2">21</span> Try it out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-21">
 
 
 
@@ -494,23 +513,17 @@ false
 
 </div>
 
-<div id="outline-container-21" class="outline-2">
-<h2 id="sec-21"><span class="section-number-2">21</span> We're almost there! Let's round things out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-21">
+<div id="outline-container-22" class="outline-2">
+<h2 id="sec-22"><span class="section-number-2">22</span> We're almost there! Let's round things out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-22">
 
 
 
 
 <pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
-  <span style="color: #7f007f;">return</span> env[x] <span style="color: #7f007f;">if</span> x.is_a? <span style="color: #228b22;">Symbol</span>
-  <span style="color: #7f007f;">return</span> x <span style="color: #7f007f;">if</span> !x.is_a? <span style="color: #228b22;">Array</span>
-  <span style="color: #7f007f;">case</span> x[0]
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> x[1..-1]
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:define</span> <span style="color: #7f007f;">then</span> env[x[1]] = eval(x[2], env)
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:set!</span> <span style="color: #7f007f;">then</span> env.set(x[1], eval(x[2], env))
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:env</span> <span style="color: #7f007f;">then</span> env
+  ...
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:if</span>
-      _, test, conseq, alt = x
+    _, test, conseq, alt = x
     eval(eval(test, env) ? conseq : alt, env)
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:lambda</span>
     _, vars, exp = x
@@ -528,9 +541,9 @@ false
 
 </div>
 
-<div id="outline-container-22" class="outline-2">
-<h2 id="sec-22"><span class="section-number-2">22</span> Take in your new awesomeness &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
-<div class="outline-text-2" id="text-22">
+<div id="outline-container-23" class="outline-2">
+<h2 id="sec-23"><span class="section-number-2">23</span> Take in your new awesomeness &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-23">
 
 
 
@@ -548,6 +561,56 @@ geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x
 4
 </pre>
 
+</div>
+
+</div>
+
+<div id="outline-container-24" class="outline-2">
+<h2 id="sec-24"><span class="section-number-2">24</span> We now have the basics of a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-24">
+
+</div>
+
+</div>
+
+<div id="outline-container-25" class="outline-2">
+<h2 id="sec-25"><span class="section-number-2">25</span> But we are missing a lot &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-25">
+
+<ul>
+<li>No error handling
+</li>
+<li>Not a complete implementation of the scheme spec
+</li>
+<li>No ability to load a file and run it
+</li>
+<li>No core after the bootstrap (stdlib)
+</li>
+<li>No callcc/tail recursion
+</li>
+<li>No save-world
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<div id="outline-container-26" class="outline-2">
+<h2 id="sec-26"><span class="section-number-2">26</span> References &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-26">
+
+<ul>
+<li>(How to Write a (Lisp) Interpreter (in Python)) <a href="http://norvig.com/lispy.html">norvig.com/lispy.html</a>
+</li>
+<li>SICP <a href="http://mitpress.mit.edu/sicp/">mitpress.mit.edu/sicp/</a>
+</li>
+<li>Scheme Specification <a href="http://www.schemers.org/Documents/Standards/R5RS/">www.schemers.org/Documents/Standards/R5RS/</a>
+</li>
+</ul>
+
+
+
 
 
 
@@ -558,7 +621,7 @@ geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-05-08 00:01:14 CDT</p>
+<p class="date">Date: 2012-05-08 07:47:41 CDT</p>
 <p class="author">Author: Aaron Bedra</p>
 <p class="creator">Org version 7.8.03 with Emacs version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

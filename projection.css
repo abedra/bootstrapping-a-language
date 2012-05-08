@@ -38,3 +38,11 @@ span.section-number-1,span.section-number-2,span.section-number-3,span.section-n
    background: blue;
    color: white;
 }
+
+.title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -25%;
+    margin-top: -5em;
+}
