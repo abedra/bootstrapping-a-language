@@ -15,6 +15,16 @@ class Env < Hash
   end
 end
 
+def init(env)
+  [:+, :-, :*, :/, :>, :<, :>=, :<=, :==].each do |op|
+    env[op] = lambda{|a, b| a.send(op, b)}
+  end
+  env.update({ :length => lambda{|x| x.length}, :cons => lambda{|x, y| [x]+y},
+  :car => lambda{|x| x[0]}, :cdr => lambda{|x| x[1..-1]}, :append => lambda{|x,y| x+y},
+  :list => lambda{|*xs| xs}, :list? => lambda{|x| x.is_a? Array}, :null? => lambda{|x| x==nil},
+  :symbol? => lambda{|x| x.is_a? Symbol}, :not => lambda{|x| !x}, :display => lambda{|x| p x}})
+end
+
 def eval(x, env)
   return env[x] if x.is_a? Symbol
   return x if !x.is_a? Array
@@ -23,6 +33,17 @@ def eval(x, env)
   when :define then env[x[1]] = eval(x[2], env)
   when :set! then env.set(x[1], eval(x[2], env))
   when :env then env
+  when :if
+    _, test, conseq, alt = x
+    eval(eval(test, env) ? conseq : alt, env)
+  when :lambda
+    _, vars, exp = x
+    Proc.new{|*args| eval(exp, Env.new(vars, args, env))}
+  when :begin
+    x[1..-1].inject([nil, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
+  else
+    exps = x.map{|exp| eval(exp, env)}
+    exps[0].call(*exps[1..-1])
   end
 end
 
@@ -39,7 +60,7 @@ def read(src)
 end
 
 def repl
-  env = Env.new
+  env = init(Env.new)
   while true
     "geeklisp> ".display
     p(eval(read(gets), env))

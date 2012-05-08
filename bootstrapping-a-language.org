@@ -57,12 +57,12 @@ file:norvig.jpg
     return src if src =~ /^-?\d+$/ || src =~ /^-?\d*\.\d+$/
     ':' + src
   end
-  
+
   def read(src)
     tokens = src.gsub('(', ' ( ').gsub(')', ' ) ').split
     Kernel.eval(tokens.map{|s| to_atom(s)}.join(' ').gsub(' ]',']').gsub(/([^\[]) /,'\1, '))
   end
-  
+
   def repl
     while true
       "geeklisp> ".display
@@ -88,7 +88,7 @@ file:norvig.jpg
       when :quote then x[1..-1]
     end
   end
-  
+
   def repl
     while true
       "geeklisp> ".display
@@ -98,7 +98,7 @@ file:norvig.jpg
 #+end_src
 * Did we take a step back? 					      :slide:
 #+begin_src scheme
-  $ ./geeklisp 
+  $ ./geeklisp
   geeklisp> (+ 2 3)
   nil
   geeklisp> (define sqr (x) (* x x))
@@ -115,11 +115,11 @@ file:norvig.jpg
       @outer = outer
       keys.zip(vals).each{|p| store(*p)}
     end
-  
+
     def [] (name)
       super(name) || @outer[name]
     end
-  
+
     def set(name, value)
       key?(name) ? store(name, value) : @outer.set(name, value)
     end
@@ -137,18 +137,18 @@ file:norvig.jpg
     when :env then env
     end
   end
-  
+
   def repl
     env = Env.new
     while true
       "geeklisp> ".display
-      puts (eval(read(gets))).inspect
+      p(eval(read(gets), env))
     end
   end
 #+end_src
 * Give it a try							      :slide:
 #+begin_src scheme
-  ./geeklisp 
+  ./geeklisp
   geeklisp> (define foo 5)
   5
   geeklisp> (define sqr (x) (* x x))
@@ -157,12 +157,133 @@ file:norvig.jpg
   27
   geeklisp> foo
   5
-  geeklisp> bar 
+  geeklisp> bar
   27
   geeklisp> (define baz (quote (1 2 3)))
   [[1, 2, 3]]
   geeklisp> (env)
   {:foo=>5, :sqr=>nil, :bar=>27, :baz=>[[1, 2, 3]]}
+#+end_src
+* But our language still doesn't really know how to do anything...    :slide:
+#+begin_src scheme
+  $ ./geeklisp
+  geeklisp> (+ 2 3)
+  nil
+  geeklisp> (car (1 2 3))
+  nil
+  geeklisp> (cdr (1 2 3))
+  nil
+  geeklisp> (+ (* 3 4) 5)
+  nil
+#+end_src
+* Define the basic primitives					      :slide:
+#+begin_src ruby
+  def init(env)
+    [:+, :-, :*, :/, :>, :<, :>=, :<=, :==].each do |op|
+      env[op] = lambda{|a, b| a.send(op, b)}
+    end
+  end
+
+  def repl
+    env = init(Env.new)
+    while true
+      "geeklisp> ".display
+      p(eval(read(gets), env))
+    end
+  end
+
+  def eval(x, env)
+    ...
+    else
+      exps = x.map{|exp| eval(exp, env)}
+      exps[0].call(*exps[1..-1])
+    end
+  end
+#+end_src
+* Now we're cooking						      :slide:
+#+begin_src scheme
+  $ ./geeklisp
+  geeklisp> (* 2 3)
+  6
+  geeklisp> (> 2 3)
+  false
+  geeklisp> (< 2 3)
+  true
+  geeklisp> (/ 4 12)
+  0
+  geeklisp> (/ 12 4)
+  3
+  geeklisp> (- 5 6)
+  -1
+  geeklisp> (== 5 5)
+  true
+#+end_src
+* Bootstrapping more basic functions				      :slide:
+#+begin_src ruby
+  def init(env)
+    [:+, :-, :*, :/, :>, :<, :>=, :<=, :==].each do |op|
+      env[op] = lambda{|a, b| a.send(op, b)}
+    end
+    env.update({ :length => lambda{|x| x.length}, :cons => lambda{|x, y| [x]+y},
+    :car => lambda{|x| x[0]}, :cdr => lambda{|x| x[1..-1]}, :append => lambda{|x,y| x+y},
+    :list => lambda{|*xs| xs}, :list? => lambda{|x| x.is_a? Array}, :null? => lambda{|x| x==nil},
+    :symbol? => lambda{|x| x.is_a? Symbol}, :not => lambda{|x| !x}, :display => lambda{|x| p x}})
+  end
+#+end_src
+* Try it out							      :slide:
+#+begin_src scheme
+  (define foo (list 1 2 3))
+  [1, 2, 3]
+  geeklisp> (car foo)
+  1
+  geeklisp> (cdr foo)
+  [2, 3]
+  geeklisp> (cons 4 foo)
+  [4, 1, 2, 3]
+  geeklisp> (list? foo)
+  true
+  geeklisp> (define bar 5)
+  5
+  geeklisp> (list? 5)
+  false
+#+end_src
+* We're almost there! Let's round things out			      :slide:
+#+begin_src ruby
+  def eval(x, env)
+    return env[x] if x.is_a? Symbol
+    return x if !x.is_a? Array
+    case x[0]
+    when :quote then x[1..-1]
+    when :define then env[x[1]] = eval(x[2], env)
+    when :set! then env.set(x[1], eval(x[2], env))
+    when :env then env
+    when :if
+        _, test, conseq, alt = x
+      eval(eval(test, env) ? conseq : alt, env)
+    when :lambda
+      _, vars, exp = x
+      Proc.new{|*args| eval(exp, Env.new(vars, args, env))}
+    when :begin
+      x[1..-1].reduce([nil, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
+    else
+      exps = x.map{|exp| eval(exp, env)}
+      exps[0].call(*exps[1..-1])
+    end
+  end
+#+end_src
+* Take in your new awesomeness					      :slide:
+#+begin_src scheme
+  $ ./geeklisp
+  geeklisp> (if (< 3 5) 10 20)
+  10
+  geeklisp> (if (> 3 5) 10 20)
+  20
+  geeklisp> (define square (lambda (x) (* x x)))
+  #<Proc:0x00000001001b7aa0@./geeklisp:41>
+  geeklisp> (square 12)
+  144
+  geeklisp> (begin (set! x 1) (set! x (+ x 1)) (* x 2))
+  4
 #+end_src
 
 #+TAGS: slide(s)

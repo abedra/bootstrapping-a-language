@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content="Bootstrapping a Language"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-05-07 23:03:54 CDT"/>
+<meta name="generated" content="2012-05-08 00:01:14 CDT"/>
 <meta name="author" content="Aaron Bedra"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -48,6 +48,13 @@
 <li><a href="#sec-13">13 We need a way to keep track of things so we can refer to them later</a></li>
 <li><a href="#sec-14">14 Update eval to accept an env and repl to initialize an env</a></li>
 <li><a href="#sec-15">15 Give it a try</a></li>
+<li><a href="#sec-16">16 But our language still doesn't really know how to do anything&hellip;</a></li>
+<li><a href="#sec-17">17 Define the basic primitives</a></li>
+<li><a href="#sec-18">18 Now we're cooking</a></li>
+<li><a href="#sec-19">19 Bootstrapping more basic functions</a></li>
+<li><a href="#sec-20">20 Try it out</a></li>
+<li><a href="#sec-21">21 We're almost there! Let's round things out</a></li>
+<li><a href="#sec-22">22 Take in your new awesomeness</a></li>
 </ul>
 </div>
 </div>
@@ -253,7 +260,7 @@ geeklisp&gt; (sqr 2)
 
 
 
-<pre class="src src-scheme">$ ./geeklisp 
+<pre class="src src-scheme">$ ./geeklisp
 geeklisp&gt; (+ 2 3)
 nil
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
@@ -317,7 +324,7 @@ geeklisp&gt; (quote (1 2 3 4))
   env = <span style="color: #228b22;">Env</span>.new
   <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
     <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
-    puts (eval(read(gets))).inspect
+    p(eval(read(gets), env))
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
 </pre>
@@ -333,7 +340,7 @@ geeklisp&gt; (quote (1 2 3 4))
 
 
 
-<pre class="src src-scheme">./geeklisp 
+<pre class="src src-scheme">./geeklisp
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> 5)
 5
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">sqr</span> (x) (* x x))
@@ -342,12 +349,203 @@ geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0
 27
 geeklisp&gt; foo
 5
-geeklisp&gt; bar 
+geeklisp&gt; bar
 27
 geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">baz</span> (quote (1 2 3)))
 [[1, 2, 3]]
 geeklisp&gt; (env)
 {<span style="color: #483d8b;">:foo=&gt;5</span>, <span style="color: #483d8b;">:sqr=&gt;nil</span>, <span style="color: #483d8b;">:bar=&gt;27</span>, <span style="color: #483d8b;">:baz=&gt;</span>[[1, 2, 3]]}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-16" class="outline-2">
+<h2 id="sec-16"><span class="section-number-2">16</span> But our language still doesn't really know how to do anything&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-16">
+
+
+
+
+<pre class="src src-scheme">$ ./geeklisp
+geeklisp&gt; (+ 2 3)
+nil
+geeklisp&gt; (car (1 2 3))
+nil
+geeklisp&gt; (cdr (1 2 3))
+nil
+geeklisp&gt; (+ (* 3 4) 5)
+nil
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-17" class="outline-2">
+<h2 id="sec-17"><span class="section-number-2">17</span> Define the basic primitives &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-17">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">init</span>(env)
+  [<span style="color: #008b8b;">:+</span>, <span style="color: #008b8b;">:-</span>, <span style="color: #008b8b;">:*</span>, <span style="color: #008b8b;">:/</span>, <span style="color: #008b8b;">:&gt;</span>, <span style="color: #008b8b;">:&lt;</span>, <span style="color: #008b8b;">:&gt;=</span>, <span style="color: #008b8b;">:&lt;=</span>, <span style="color: #008b8b;">:==</span>].each <span style="color: #7f007f;">do</span> |op|
+    env[op] = lambda{|a, b| a.send(op, b)}
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">repl</span>
+  env = init(<span style="color: #228b22;">Env</span>.new)
+  <span style="color: #7f007f;">while</span> <span style="color: #a0522d;">true</span>
+    <span style="color: #8b2252;">"geeklisp&gt; "</span>.display
+    p(eval(read(gets), env))
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+
+<span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
+  ...
+  <span style="color: #7f007f;">else</span>
+    exps = x.map{|exp| eval(exp, env)}
+    exps[0].call(*exps[1..-1])
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-18" class="outline-2">
+<h2 id="sec-18"><span class="section-number-2">18</span> Now we're cooking &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-18">
+
+
+
+
+<pre class="src src-scheme">$ ./geeklisp
+geeklisp&gt; (* 2 3)
+6
+geeklisp&gt; (&gt; 2 3)
+false
+geeklisp&gt; (&lt; 2 3)
+true
+geeklisp&gt; (/ 4 12)
+0
+geeklisp&gt; (/ 12 4)
+3
+geeklisp&gt; (- 5 6)
+-1
+geeklisp&gt; (== 5 5)
+true
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-19" class="outline-2">
+<h2 id="sec-19"><span class="section-number-2">19</span> Bootstrapping more basic functions &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-19">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">init</span>(env)
+  [<span style="color: #008b8b;">:+</span>, <span style="color: #008b8b;">:-</span>, <span style="color: #008b8b;">:*</span>, <span style="color: #008b8b;">:/</span>, <span style="color: #008b8b;">:&gt;</span>, <span style="color: #008b8b;">:&lt;</span>, <span style="color: #008b8b;">:&gt;=</span>, <span style="color: #008b8b;">:&lt;=</span>, <span style="color: #008b8b;">:==</span>].each <span style="color: #7f007f;">do</span> |op|
+    env[op] = lambda{|a, b| a.send(op, b)}
+  <span style="color: #7f007f;">end</span>
+  env.update({ <span style="color: #008b8b;">:length</span> =&gt; lambda{|x| x.length}, <span style="color: #008b8b;">:cons</span> =&gt; lambda{|x, y| [x]+y},
+  <span style="color: #008b8b;">:car</span> =&gt; lambda{|x| x[0]}, <span style="color: #008b8b;">:cdr</span> =&gt; lambda{|x| x[1..-1]}, <span style="color: #008b8b;">:append</span> =&gt; lambda{|x,y| x+y},
+  <span style="color: #008b8b;">:list</span> =&gt; lambda{|*xs| xs}, <span style="color: #008b8b;">:list?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Array</span>}, <span style="color: #008b8b;">:null?</span> =&gt; lambda{|x| x==<span style="color: #a0522d;">nil</span>},
+  <span style="color: #008b8b;">:symbol?</span> =&gt; lambda{|x| x.is_a? <span style="color: #228b22;">Symbol</span>}, <span style="color: #008b8b;">:not</span> =&gt; lambda{|x| !x}, <span style="color: #008b8b;">:display</span> =&gt; lambda{|x| p x}})
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-20" class="outline-2">
+<h2 id="sec-20"><span class="section-number-2">20</span> Try it out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-20">
+
+
+
+
+<pre class="src src-scheme">(<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">foo</span> (list 1 2 3))
+[1, 2, 3]
+geeklisp&gt; (car foo)
+1
+geeklisp&gt; (cdr foo)
+[2, 3]
+geeklisp&gt; (cons 4 foo)
+[4, 1, 2, 3]
+geeklisp&gt; (list? foo)
+true
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">bar</span> 5)
+5
+geeklisp&gt; (list? 5)
+false
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-21" class="outline-2">
+<h2 id="sec-21"><span class="section-number-2">21</span> We're almost there! Let's round things out &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-21">
+
+
+
+
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
+  <span style="color: #7f007f;">return</span> env[x] <span style="color: #7f007f;">if</span> x.is_a? <span style="color: #228b22;">Symbol</span>
+  <span style="color: #7f007f;">return</span> x <span style="color: #7f007f;">if</span> !x.is_a? <span style="color: #228b22;">Array</span>
+  <span style="color: #7f007f;">case</span> x[0]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> x[1..-1]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:define</span> <span style="color: #7f007f;">then</span> env[x[1]] = eval(x[2], env)
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:set!</span> <span style="color: #7f007f;">then</span> env.set(x[1], eval(x[2], env))
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:env</span> <span style="color: #7f007f;">then</span> env
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:if</span>
+      _, test, conseq, alt = x
+    eval(eval(test, env) ? conseq : alt, env)
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:lambda</span>
+    _, vars, exp = x
+    <span style="color: #228b22;">Proc</span>.new{|*args| eval(exp, <span style="color: #228b22;">Env</span>.new(vars, args, env))}
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:begin</span>
+    x[1..-1].reduce([<span style="color: #a0522d;">nil</span>, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
+  <span style="color: #7f007f;">else</span>
+    exps = x.map{|exp| eval(exp, env)}
+    exps[0].call(*exps[1..-1])
+  <span style="color: #7f007f;">end</span>
+<span style="color: #7f007f;">end</span>
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-22" class="outline-2">
+<h2 id="sec-22"><span class="section-number-2">22</span> Take in your new awesomeness &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-22">
+
+
+
+
+<pre class="src src-scheme">$ ./geeklisp
+geeklisp&gt; (<span style="color: #7f007f;">if</span> (&lt; 3 5) 10 20)
+10
+geeklisp&gt; (<span style="color: #7f007f;">if</span> (&gt; 3 5) 10 20)
+20
+geeklisp&gt; (<span style="color: #7f007f;">define</span> <span style="color: #0000ff;">square</span> (<span style="color: #7f007f;">lambda</span> (x) (* x x)))
+#&lt;Proc:0x00000001001b7aa0@./geeklisp:41&gt;
+geeklisp&gt; (square 12)
+144
+geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x 1)) (* x 2))
+4
 </pre>
 
 
@@ -360,7 +558,7 @@ geeklisp&gt; (env)
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-05-07 23:03:54 CDT</p>
+<p class="date">Date: 2012-05-08 00:01:14 CDT</p>
 <p class="author">Author: Aaron Bedra</p>
 <p class="creator">Org version 7.8.03 with Emacs version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
