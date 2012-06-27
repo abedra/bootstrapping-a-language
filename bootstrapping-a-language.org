@@ -30,7 +30,7 @@
   geeklisp>
 #+end_src
 * This is the true story... of several lines of code... picked to live in a REPL... to work together and have their lines executed... find out what happens when code stops being polite... and starts getting real... :slide:
-* Everyone should try to write a language			      :slide:
+* Everyone should write a language 				      :slide:
 * 								      :slide:
 file:lisplogo.png
 * Peter Norvig							      :slide:
@@ -129,13 +129,13 @@ file:norvig.jpg
 #+end_src
 * Update eval to accept an env and repl to initialize an env 	      :slide:
 #+begin_src ruby
-  def eval(x, env)
-    return env[x] if x.is_a? Symbol
-    return x if !x.is_a? Array
-    case x[0]
-    when :quote then x[1..-1]
-    when :define then env[x[1]] = eval(x[2], env)
-    when :set! then env.set(x[1], eval(x[2], env))
+  def eval(symbol, env)
+    return env[symbol] if symbol.is_a? Symbol
+    return symbol if !symbol.is_a? Array
+    case symbol[0]
+    when :quote then symbol[1..-1]
+    when :define then env[symbol[1]] = eval(symbol[2], env)
+    when :set! then env.set(symbol[1], eval(symbol[2], env))
     when :env then env
     end
   end
@@ -258,18 +258,18 @@ file:norvig.jpg
 #+end_src
 * We're almost there! Let's round things out			      :slide:
 #+begin_src ruby
-  def eval(x, env)
+  def eval(symbol, env)
     ...
     when :if
-      _, test, conseq, alt = x
+      _, test, conseq, alt = symbol
       eval(eval(test, env) ? conseq : alt, env)
     when :lambda
-      _, vars, exp = x
+      _, vars, exp = symbol
       Proc.new{|*args| eval(exp, Env.new(vars, args, env))}
     when :begin
-      x[1..-1].reduce([nil, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
+      symbol[1..-1].reduce([nil, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
     else
-      exps = x.map{|exp| eval(exp, env)}
+      exps = symbol.map{|exp| eval(exp, env)}
       exps[0].call(*exps[1..-1])
     end
   end

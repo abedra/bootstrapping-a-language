@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content="Bootstrapping a Language"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-06-27T09:06-0400"/>
+<meta name="generated" content="2012-06-27T11:40-0400"/>
 <meta name="author" content="Aaron Bedra"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -37,7 +37,7 @@
 <li><a href="#sec-2">2 Once upon a time there was a REPL</a></li>
 <li><a href="#sec-3">3 But that REPL didn't do much</a></li>
 <li><a href="#sec-4">4 This is the true story&hellip; of several lines of code&hellip; picked to live in a REPL&hellip; to work together and have their lines executed&hellip; find out what happens when code stops being polite&hellip; and starts getting real&hellip;</a></li>
-<li><a href="#sec-5">5 Everyone should try to write a language</a></li>
+<li><a href="#sec-5">5 Everyone should write a language</a></li>
 <li><a href="#sec-6">6 :slide:</a></li>
 <li><a href="#sec-7">7 Peter Norvig</a></li>
 <li><a href="#sec-8">8 The basics</a></li>
@@ -147,7 +147,7 @@ geeklisp&gt;
 </div>
 
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Everyone should try to write a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Everyone should write a language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
 <div class="outline-text-2" id="text-5">
 
 </div>
@@ -343,13 +343,13 @@ geeklisp&gt; (quote (1 2 3 4))
 
 
 
-<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
-  <span style="color: #7f007f;">return</span> env[x] <span style="color: #7f007f;">if</span> x.is_a? <span style="color: #228b22;">Symbol</span>
-  <span style="color: #7f007f;">return</span> x <span style="color: #7f007f;">if</span> !x.is_a? <span style="color: #228b22;">Array</span>
-  <span style="color: #7f007f;">case</span> x[0]
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> x[1..-1]
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:define</span> <span style="color: #7f007f;">then</span> env[x[1]] = eval(x[2], env)
-  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:set!</span> <span style="color: #7f007f;">then</span> env.set(x[1], eval(x[2], env))
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(symbol, env)
+  <span style="color: #7f007f;">return</span> env[symbol] <span style="color: #7f007f;">if</span> symbol.is_a? <span style="color: #228b22;">Symbol</span>
+  <span style="color: #7f007f;">return</span> symbol <span style="color: #7f007f;">if</span> !symbol.is_a? <span style="color: #228b22;">Array</span>
+  <span style="color: #7f007f;">case</span> symbol[0]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:quote</span> <span style="color: #7f007f;">then</span> symbol[1..-1]
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:define</span> <span style="color: #7f007f;">then</span> env[symbol[1]] = eval(symbol[2], env)
+  <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:set!</span> <span style="color: #7f007f;">then</span> env.set(symbol[1], eval(symbol[2], env))
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:env</span> <span style="color: #7f007f;">then</span> env
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
@@ -542,18 +542,18 @@ false
 
 
 
-<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(x, env)
+<pre class="src src-ruby"><span style="color: #7f007f;">def</span> <span style="color: #0000ff;">eval</span>(symbol, env)
   ...
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:if</span>
-    _, test, conseq, alt = x
+    _, test, conseq, alt = symbol
     eval(eval(test, env) ? conseq : alt, env)
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:lambda</span>
-    _, vars, exp = x
+    _, vars, exp = symbol
     <span style="color: #228b22;">Proc</span>.new{|*args| eval(exp, <span style="color: #228b22;">Env</span>.new(vars, args, env))}
   <span style="color: #7f007f;">when</span> <span style="color: #008b8b;">:begin</span>
-    x[1..-1].reduce([<span style="color: #a0522d;">nil</span>, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
+    symbol[1..-1].reduce([<span style="color: #a0522d;">nil</span>, env]){|val_env, exp| [eval(exp, val_env[1]), val_env[1]]}[0]
   <span style="color: #7f007f;">else</span>
-    exps = x.map{|exp| eval(exp, env)}
+    exps = symbol.map{|exp| eval(exp, env)}
     exps[0].call(*exps[1..-1])
   <span style="color: #7f007f;">end</span>
 <span style="color: #7f007f;">end</span>
@@ -1100,7 +1100,7 @@ entry:
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-06-27T09:06-0400</p>
+<p class="date">Date: 2012-06-27T11:40-0400</p>
 <p class="author">Author: Aaron Bedra</p>
 <p class="creator"><a href="http://orgmode.org">Org</a> version 7.8.10 with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
