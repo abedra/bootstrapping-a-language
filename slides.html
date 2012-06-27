@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="title" content="Bootstrapping a Language"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-05-08 09:42:05 CDT"/>
+<meta name="generated" content="2012-06-27T09:06-0400"/>
 <meta name="author" content="Aaron Bedra"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -58,7 +58,27 @@
 <li><a href="#sec-23">23 Take in your new awesomeness</a></li>
 <li><a href="#sec-24">24 We now have the basics of a language</a></li>
 <li><a href="#sec-25">25 But we are missing a lot</a></li>
-<li><a href="#sec-26">26 References</a></li>
+<li><a href="#sec-26">26 In case Lisp isn't your thing&hellip;</a></li>
+<li><a href="#sec-27">27 Let's look at another toy language</a></li>
+<li><a href="#sec-28">28 LLVM</a></li>
+<li><a href="#sec-29">29 ???</a></li>
+<li><a href="#sec-30">30 Tokenization</a></li>
+<li><a href="#sec-31">31 &hellip;</a></li>
+<li><a href="#sec-32">32 AST</a></li>
+<li><a href="#sec-33">33 &hellip;</a></li>
+<li><a href="#sec-34">34 &hellip;</a></li>
+<li><a href="#sec-35">35 Parsing</a></li>
+<li><a href="#sec-36">36 Codegen</a></li>
+<li><a href="#sec-37">37 Handlers</a></li>
+<li><a href="#sec-38">38 Interactive shell</a></li>
+<li><a href="#sec-39">39 Putting it all together</a></li>
+<li><a href="#sec-40">40 Giving it a spin</a></li>
+<li><a href="#sec-41">41 &hellip;</a></li>
+<li><a href="#sec-42">42 THIS IS FUN!</a></li>
+<li><a href="#sec-43">43 You can learn a so much by doing this!</a></li>
+<li><a href="#sec-44">44 You will think more about how your programming language does this!</a></li>
+<li><a href="#sec-45">45 You might even explore the implementation of your language to see how it works!</a></li>
+<li><a href="#sec-46">46 References</a></li>
 </ul>
 </div>
 </div>
@@ -599,8 +619,462 @@ geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x
 </div>
 
 <div id="outline-container-26" class="outline-2">
-<h2 id="sec-26"><span class="section-number-2">26</span> References &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<h2 id="sec-26"><span class="section-number-2">26</span> In case Lisp isn't your thing&hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
 <div class="outline-text-2" id="text-26">
+
+</div>
+
+</div>
+
+<div id="outline-container-27" class="outline-2">
+<h2 id="sec-27"><span class="section-number-2">27</span> Let's look at another toy language &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-27">
+
+</div>
+
+</div>
+
+<div id="outline-container-28" class="outline-2">
+<h2 id="sec-28"><span class="section-number-2">28</span> LLVM &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-28">
+
+<p><img src="llvm.png"  alt="llvm.png" />
+</p></div>
+
+</div>
+
+<div id="outline-container-29" class="outline-2">
+<h2 id="sec-29"><span class="section-number-2">29</span> ??? &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-29">
+
+<ul>
+<li>LLVM (formerly Low Level Virtual Machine) is compiler infrastructure written in C++
+</li>
+<li>It is designed for compile-time, link-time, run-time, and "idle-time" optimization of programs written in arbitrary programming languages.
+</li>
+<li>Originally implemented for C and C++, the language-agnostic design (and the success) of LLVM has since spawned a wide variety of front ends
+</li>
+<li>Languages with compilers which use LLVM include Objective-C, Fortran, Ada, Haskell, Java bytecode, Python, Ruby, ActionScript, GLSL, and Rust.
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<div id="outline-container-30" class="outline-2">
+<h2 id="sec-30"><span class="section-number-2">30</span> Tokenization &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-30">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">static</span> <span style="color: #228b22;">int</span> <span style="color: #0000ff;">gettok</span>() {
+  <span style="color: #7f007f;">static</span> <span style="color: #228b22;">int</span> <span style="color: #a0522d;">LastChar</span> = <span style="color: #8b2252;">' '</span>;
+
+  <span style="color: #7f007f;">while</span> (isspace(LastChar))
+    LastChar = getchar();
+
+  <span style="color: #7f007f;">if</span> (isalpha(LastChar)) {
+    IdentifierStr = LastChar;
+    <span style="color: #7f007f;">while</span> (isalnum((LastChar = getchar())))
+      IdentifierStr += LastChar;
+
+    <span style="color: #7f007f;">if</span> (IdentifierStr == <span style="color: #8b2252;">"def"</span>) <span style="color: #7f007f;">return</span> tok_def;
+    <span style="color: #7f007f;">if</span> (IdentifierStr == <span style="color: #8b2252;">"extern"</span>) <span style="color: #7f007f;">return</span> tok_extern;
+    <span style="color: #7f007f;">return</span> tok_identifier;
+  }
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-31" class="outline-2">
+<h2 id="sec-31"><span class="section-number-2">31</span> &hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-31">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">if</span> (isdigit(LastChar) || LastChar == <span style="color: #8b2252;">'.'</span>) {
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> <span style="color: #a0522d;">NumStr</span>;
+  <span style="color: #7f007f;">do</span> {
+    NumStr += LastChar;
+    LastChar = getchar();
+  } <span style="color: #7f007f;">while</span> (isdigit(LastChar) || LastChar == <span style="color: #8b2252;">'.'</span>);
+
+  NumVal = strtod(NumStr.c_str(), 0);
+  <span style="color: #7f007f;">return</span> tok_number;
+}
+
+<span style="color: #7f007f;">if</span> (LastChar == <span style="color: #8b2252;">'#'</span>) {
+  <span style="color: #7f007f;">do</span> LastChar = getchar();
+  <span style="color: #7f007f;">while</span> (LastChar != EOF &amp;&amp; LastChar != <span style="color: #8b2252;">'\n'</span> &amp;&amp; LastChar != <span style="color: #8b2252;">'\r'</span>);
+
+  <span style="color: #7f007f;">if</span> (LastChar != EOF)
+    <span style="color: #7f007f;">return</span> gettok();
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-32" class="outline-2">
+<h2 id="sec-32"><span class="section-number-2">32</span> AST &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-32">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">class</span> <span style="color: #228b22;">ExprAST</span> {
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #7f007f;">virtual</span> ~<span style="color: #0000ff;">ExprAST</span>() {}
+  <span style="color: #7f007f;">virtual</span> <span style="color: #228b22;">Value</span> *<span style="color: #0000ff;">Codegen</span>() = 0;
+};
+
+<span style="color: #7f007f;">class</span> <span style="color: #228b22;">NumberExprAST</span> : <span style="color: #7f007f;">public</span> <span style="color: #228b22;">ExprAST</span> {
+  <span style="color: #228b22;">double</span> <span style="color: #a0522d;">Val</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">NumberExprAST</span>(<span style="color: #228b22;">double</span> <span style="color: #a0522d;">val</span>) : Val(val) {}
+  <span style="color: #7f007f;">virtual</span> <span style="color: #228b22;">Value</span> *<span style="color: #0000ff;">Codegen</span>();
+};
+
+<span style="color: #7f007f;">class</span> <span style="color: #228b22;">VariableExprAST</span> : <span style="color: #7f007f;">public</span> <span style="color: #228b22;">ExprAST</span> {
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> <span style="color: #a0522d;">Name</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">VariableExprAST</span>(<span style="color: #7f007f;">const</span> <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> &amp;<span style="color: #a0522d;">name</span>) : Name(name) {}
+  <span style="color: #7f007f;">virtual</span> <span style="color: #228b22;">Value</span> *<span style="color: #0000ff;">Codegen</span>();
+};
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-33" class="outline-2">
+<h2 id="sec-33"><span class="section-number-2">33</span> &hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-33">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">class</span> <span style="color: #228b22;">BinaryExprAST</span> : <span style="color: #7f007f;">public</span> <span style="color: #228b22;">ExprAST</span> {
+  <span style="color: #228b22;">char</span> <span style="color: #a0522d;">Op</span>;
+  <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">LHS</span>, *<span style="color: #a0522d;">RHS</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">BinaryExprAST</span>(<span style="color: #228b22;">char</span> <span style="color: #a0522d;">op</span>, <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">lhs</span>, <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">rhs</span>)
+    : Op(op), LHS(lhs), RHS(rhs) {}
+  <span style="color: #7f007f;">virtual</span> <span style="color: #228b22;">Value</span> *<span style="color: #0000ff;">Codegen</span>();
+};
+
+<span style="color: #7f007f;">class</span> <span style="color: #228b22;">CallExprAST</span> : <span style="color: #7f007f;">public</span> <span style="color: #228b22;">ExprAST</span> {
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> <span style="color: #a0522d;">Callee</span>;
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">vector</span>&lt;<span style="color: #228b22;">ExprAST</span>*&gt; <span style="color: #a0522d;">Args</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">CallExprAST</span>(<span style="color: #7f007f;">const</span> <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> &amp;<span style="color: #a0522d;">callee</span>, <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">vector</span>&lt;<span style="color: #228b22;">ExprAST</span>*&gt; &amp;<span style="color: #a0522d;">args</span>)
+    : Callee(callee), Args(args) {}
+  <span style="color: #7f007f;">virtual</span> <span style="color: #228b22;">Value</span> *<span style="color: #0000ff;">Codegen</span>();
+};
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-34" class="outline-2">
+<h2 id="sec-34"><span class="section-number-2">34</span> &hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-34">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">class</span> <span style="color: #228b22;">PrototypeAST</span> {
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> <span style="color: #a0522d;">Name</span>;
+  <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">vector</span>&lt;<span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span>&gt; <span style="color: #a0522d;">Args</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">PrototypeAST</span>(<span style="color: #7f007f;">const</span> <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span> &amp;<span style="color: #a0522d;">name</span>, <span style="color: #7f007f;">const</span> <span style="color: #008b8b;">std</span>::<span style="color: #228b22;">vector</span>&lt;<span style="color: #008b8b;">std</span>::<span style="color: #228b22;">string</span>&gt; &amp;<span style="color: #a0522d;">args</span>)
+    : Name(name), <span style="color: #0000ff;">Args</span>(args) {}
+
+  Function *Codegen();
+};
+
+<span style="color: #7f007f;">class</span> <span style="color: #228b22;">FunctionAST</span> {
+  <span style="color: #228b22;">PrototypeAST</span> *<span style="color: #a0522d;">Proto</span>;
+  <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">Body</span>;
+<span style="color: #7f007f;">public</span>:
+  <span style="color: #0000ff;">FunctionAST</span>(<span style="color: #228b22;">PrototypeAST</span> *<span style="color: #a0522d;">proto</span>, <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">body</span>)
+    : Proto(proto), <span style="color: #0000ff;">Body</span>(body) {}
+
+  Function *Codegen();
+};
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-35" class="outline-2">
+<h2 id="sec-35"><span class="section-number-2">35</span> Parsing &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-35">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">static</span> <span style="color: #228b22;">ExprAST</span> *<span style="color: #0000ff;">ParseBinOpRHS</span>(<span style="color: #228b22;">int</span> <span style="color: #a0522d;">ExprPrec</span>, <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">LHS</span>) {
+  <span style="color: #7f007f;">while</span> (1) {
+    <span style="color: #228b22;">int</span> <span style="color: #a0522d;">TokPrec</span> = GetTokPrecedence();
+    <span style="color: #228b22;">int</span> <span style="color: #a0522d;">BinOp</span> = CurTok;
+    <span style="color: #7f007f;">if</span> (TokPrec &lt; ExprPrec) <span style="color: #7f007f;">return</span> LHS;
+
+    getNextToken();
+
+    <span style="color: #228b22;">ExprAST</span> *<span style="color: #a0522d;">RHS</span> = ParsePrimary();
+    <span style="color: #7f007f;">if</span> (!RHS) <span style="color: #7f007f;">return</span> 0;
+
+    <span style="color: #228b22;">int</span> <span style="color: #a0522d;">NextPrec</span> = GetTokPrecedence();
+    <span style="color: #7f007f;">if</span> (TokPrec &lt; NextPrec) {
+      RHS = ParseBinOpRHS(TokPrec+1, RHS);
+      <span style="color: #7f007f;">if</span> (RHS == 0) <span style="color: #7f007f;">return</span> 0;
+    }
+
+    LHS = <span style="color: #7f007f;">new</span> <span style="color: #228b22;">BinaryExprAST</span>(BinOp, LHS, RHS);
+  }
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-36" class="outline-2">
+<h2 id="sec-36"><span class="section-number-2">36</span> Codegen &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-36">
+
+
+
+
+<pre class="src src-c++"><span style="color: #228b22;">Function</span> *<span style="color: #008b8b;">FunctionAST</span>::<span style="color: #0000ff;">Codegen</span>() {
+  NamedValues.clear();
+
+  <span style="color: #228b22;">Function</span> *<span style="color: #a0522d;">TheFunction</span> = Proto-&gt;Codegen();
+  <span style="color: #7f007f;">if</span> (TheFunction == 0) <span style="color: #7f007f;">return</span> 0;
+
+  <span style="color: #228b22;">BasicBlock</span> *<span style="color: #a0522d;">BB</span> = <span style="color: #008b8b;">BasicBlock</span>::Create(getGlobalContext(), <span style="color: #8b2252;">"entry"</span>, TheFunction);
+  Builder.SetInsertPoint(BB);
+
+  <span style="color: #7f007f;">if</span> (<span style="color: #228b22;">Value</span> *<span style="color: #a0522d;">RetVal</span> = Body-&gt;Codegen()) {
+    Builder.CreateRet(RetVal);
+    verifyFunction(*TheFunction);
+    <span style="color: #7f007f;">return</span> TheFunction;
+  }
+
+  TheFunction-&gt;eraseFromParent();
+  <span style="color: #7f007f;">return</span> 0;
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-37" class="outline-2">
+<h2 id="sec-37"><span class="section-number-2">37</span> Handlers &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-37">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">static</span> <span style="color: #228b22;">void</span> <span style="color: #0000ff;">HandleDefinition</span>() {
+  <span style="color: #7f007f;">if</span> (<span style="color: #228b22;">FunctionAST</span> *<span style="color: #a0522d;">F</span> = ParseDefinition()) {
+    <span style="color: #7f007f;">if</span> (<span style="color: #228b22;">Function</span> *<span style="color: #a0522d;">LF</span> = F-&gt;Codegen()) {
+      fprintf(stderr, <span style="color: #8b2252;">"Read function definition:"</span>);
+      LF-&gt;dump();
+    }
+  } <span style="color: #7f007f;">else</span> {
+    getNextToken();
+  }
+}
+
+<span style="color: #7f007f;">static</span> <span style="color: #228b22;">void</span> <span style="color: #0000ff;">HandleExtern</span>() {
+  <span style="color: #7f007f;">if</span> (<span style="color: #228b22;">PrototypeAST</span> *<span style="color: #a0522d;">P</span> = ParseExtern()) {
+    <span style="color: #7f007f;">if</span> (<span style="color: #228b22;">Function</span> *<span style="color: #a0522d;">F</span> = P-&gt;Codegen()) {
+      fprintf(stderr, <span style="color: #8b2252;">"Read extern: "</span>);
+      F-&gt;dump();
+    }
+  } <span style="color: #7f007f;">else</span> {
+    getNextToken();
+  }
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-38" class="outline-2">
+<h2 id="sec-38"><span class="section-number-2">38</span> Interactive shell &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-38">
+
+
+
+
+<pre class="src src-c++"><span style="color: #7f007f;">static</span> <span style="color: #228b22;">void</span> <span style="color: #0000ff;">MainLoop</span>() {
+  <span style="color: #7f007f;">while</span> (1) {
+    fprintf(stderr, <span style="color: #8b2252;">"pon&gt; "</span>);
+    <span style="color: #7f007f;">switch</span> (CurTok) {
+    <span style="color: #7f007f;">case</span> tok_eof:    <span style="color: #7f007f;">return</span>;
+    <span style="color: #7f007f;">case</span> <span style="color: #8b2252;">';'</span>:        getNextToken(); <span style="color: #7f007f;">break</span>;
+    <span style="color: #7f007f;">case</span> tok_def:    HandleDefinition(); <span style="color: #7f007f;">break</span>;
+    <span style="color: #7f007f;">case</span> tok_extern: HandleExtern(); <span style="color: #7f007f;">break</span>;
+    <span style="color: #7f007f;">default</span>:         HandleTopLevelExpression(); <span style="color: #7f007f;">break</span>;
+    }
+  }
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-39" class="outline-2">
+<h2 id="sec-39"><span class="section-number-2">39</span> Putting it all together &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-39">
+
+
+
+
+<pre class="src src-c++"><span style="color: #228b22;">int</span> <span style="color: #0000ff;">main</span>() {
+  <span style="color: #228b22;">LLVMContext</span> &amp;<span style="color: #a0522d;">Context</span> = getGlobalContext();
+
+  BinopPrecedence[<span style="color: #8b2252;">'&lt;'</span>] = 10;
+  BinopPrecedence[<span style="color: #8b2252;">'+'</span>] = 20;
+  BinopPrecedence[<span style="color: #8b2252;">'-'</span>] = 20;
+  BinopPrecedence[<span style="color: #8b2252;">'*'</span>] = 40;
+
+  fprintf(stderr, <span style="color: #8b2252;">"pon&gt; "</span>);
+  getNextToken();
+
+  TheModule = <span style="color: #7f007f;">new</span> <span style="color: #228b22;">Module</span>(<span style="color: #8b2252;">"Pon JIT"</span>, Context);
+
+  MainLoop();
+
+  TheModule-&gt;dump();
+
+  <span style="color: #7f007f;">return</span> 0;
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-40" class="outline-2">
+<h2 id="sec-40"><span class="section-number-2">40</span> Giving it a spin &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-40">
+
+
+
+
+<pre class="src src-sh">clang++ -g -O3 pon.cpp <span style="color: #ff00ff;">`llvm-config --cppflags --ldflags --libs core`</span> -o pon
+</pre>
+
+
+<pre class="src src-python">pon&gt; 4+5;
+pon&gt; Read top-level expression:
+define double @0() {
+entry:
+  ret double 9.000000e+00
+}
+
+pon&gt; <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">foo</span>(a b) a*a + 2*a*b + b*b;
+pon&gt; Read function definition:
+define double @foo(double %a, double %b) {
+entry:
+  %multmp = fmul double %a, %a
+  %multmp1 = fmul double 2.000000e+00, %a
+  %multmp2 = fmul double %multmp1, %b
+  %addtmp = fadd double %multmp, %multmp2
+  %multmp3 = fmul double %b, %b
+  %addtmp4 = fadd double %addtmp, %multmp3
+  ret double %addtmp4
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-41" class="outline-2">
+<h2 id="sec-41"><span class="section-number-2">41</span> &hellip; &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-41">
+
+
+
+
+<pre class="src src-python">pon&gt; <span style="color: #7f007f;">def</span> <span style="color: #0000ff;">bar</span>(a) foo(a, 4.0) + bar(31337);
+pon&gt; Read function definition:
+define double @bar(double %a) {
+entry:
+  %calltmp = call double @foo(double %a, double 4.000000e+00)
+  %calltmp1 = call double @bar(double 3.133700e+04)
+  %addtmp = fadd double %calltmp, %calltmp1
+  ret double %addtmp
+}
+
+pon&gt; extern cos(x);
+pon&gt; Read extern:
+declare double @cos(double)
+
+pon&gt; cos(1.234);
+pon&gt; Read top-level expression:
+define double @1() {
+entry:
+  %calltmp = call double @cos(double 1.234000e+00)
+  ret double %calltmp
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-42" class="outline-2">
+<h2 id="sec-42"><span class="section-number-2">42</span> THIS IS FUN! &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-42">
+
+</div>
+
+</div>
+
+<div id="outline-container-43" class="outline-2">
+<h2 id="sec-43"><span class="section-number-2">43</span> You can learn a so much by doing this! &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-43">
+
+</div>
+
+</div>
+
+<div id="outline-container-44" class="outline-2">
+<h2 id="sec-44"><span class="section-number-2">44</span> You will think more about how your programming language does this! &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-44">
+
+</div>
+
+</div>
+
+<div id="outline-container-45" class="outline-2">
+<h2 id="sec-45"><span class="section-number-2">45</span> You might even explore the implementation of your language to see how it works! &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-45">
+
+</div>
+
+</div>
+
+<div id="outline-container-46" class="outline-2">
+<h2 id="sec-46"><span class="section-number-2">46</span> References &nbsp;&nbsp;&nbsp;<span class="tag"><span class="slide">slide</span></span></h2>
+<div class="outline-text-2" id="text-46">
 
 <ul>
 <li>This presentation <a href="https://github.com/abedra/bootstrapping-a-language">github.com/abedra/bootstrapping-a-language</a>
@@ -611,8 +1085,9 @@ geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x
 </li>
 <li>Scheme Specification <a href="http://www.schemers.org/Documents/Standards/R5RS/">www.schemers.org/Documents/Standards/R5RS/</a>
 </li>
+<li>LLVM <a href="http://llvm.org/">llvm.org/</a>
+</li>
 </ul>
-
 
 
 
@@ -625,9 +1100,9 @@ geeklisp&gt; (<span style="color: #7f007f;">begin</span> (set! x 1) (set! x (+ x
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-05-08 09:42:05 CDT</p>
+<p class="date">Date: 2012-06-27T09:06-0400</p>
 <p class="author">Author: Aaron Bedra</p>
-<p class="creator">Org version 7.8.03 with Emacs version 24</p>
+<p class="creator"><a href="http://orgmode.org">Org</a> version 7.8.10 with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
 
 </div>
